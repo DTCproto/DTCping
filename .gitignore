@@ -1,0 +1,5 @@
+.idea
+*.bat
+build
+*.txt
+*.csv
