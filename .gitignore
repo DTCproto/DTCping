@@ -3,3 +3,4 @@
 build
 *.txt
 *.csv
+airports.json
