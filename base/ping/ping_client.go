@@ -22,7 +22,10 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath string) {
 	iataMaps := map[string]iata.Icao{}
 	if coloOpenFlag {
 		coloMaps = colo.FetchColo(addrs)
-		iataMaps, _ = iata.GetCloudflareIatas()
+		iataMaps, err = iata.GetCloudflareIatas()
+		if err != nil {
+			log.Print(err)
+		}
 	}
 
 	newFile, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
