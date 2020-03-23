@@ -5,7 +5,7 @@
     22,
     85
   ],
-  "colo_flag": false,
+  "colo_flag": true,
   "extract_flag": true,
   "merge_flag": false,
   "ip_segments": [

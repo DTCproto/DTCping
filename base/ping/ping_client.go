@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"DTCping/base/colo"
+	"DTCping/base/iata"
 )
 
 // 经测试超过IP过多会导致该库测试不准确，轻则飙高，严重导致断网。
@@ -18,8 +19,10 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath string) {
 		log.Fatalln(err)
 	}
 	coloMaps := map[string]colo.IpColo{}
+	iataMaps := map[string]iata.Icao{}
 	if coloOpenFlag {
 		coloMaps = colo.FetchColo(addrs)
+		iataMaps, _ = iata.GetCloudflareIatas()
 	}
 
 	newFile, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
@@ -32,7 +35,7 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath string) {
 	_, _ = newFile.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM，防止中文乱码
 	// 写数据到csv文件
 	writeFd := csv.NewWriter(newFile)
-	header := []string{"IP", "loss%", "发送的包数", "返回的包数", "平均延迟", "MIN延迟", "MAX延迟", "COLO"} //标题
+	header := []string{"IP", "loss%", "发送的包数", "返回的包数", "平均延迟", "MIN延迟", "MAX延迟", "COLO", "Country", "City"} //标题
 	data := [][]string{
 		header,
 	}
@@ -54,6 +57,8 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath string) {
 				st.MinRtt.String(),
 				st.MaxRtt.String(),
 				coloMaps[ip].Colo,
+				iataMaps[coloMaps[ip].Colo].Country,
+				iataMaps[coloMaps[ip].Colo].City,
 			}
 			data = append(data, context)
 		}

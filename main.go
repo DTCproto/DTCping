@@ -2,9 +2,9 @@ package main
 
 import (
 	"DTCping/base/cidr"
+	"DTCping/base/file"
 	"DTCping/base/http"
 	"DTCping/base/ping"
-	"DTCping/config/file"
 	"flag"
 	"fmt"
 	"log"
@@ -22,11 +22,13 @@ var config struct {
 }
 
 const (
-	DTCPingVersion  = "v2.2.0-20200323"
+	DTCPingVersion  = "v2.2.1-20200324"
 	PingReference01 = "https://github.com/caucy/batch_ping"
 	PingReference02 = "https://github.com/sparrc/go-ping"
 	PingReference03 = "https://www.cloudflare.com/ips-v4"
 	PingReference04 = "http://{ip}/cdn-cgi/trace"
+	PingReference05 = "https://github.com/mwgg/Airports"
+	PingReference06 = "https://raw.githubusercontent.com/mwgg/Airports/master/airports.json"
 )
 
 func init() {
@@ -34,9 +36,8 @@ func init() {
 	fmt.Printf("当前DTCPing版本[%s]\r\n", DTCPingVersion)
 	fmt.Printf("当前参考库如下: \r\n")
 	fmt.Printf(PingReference01 + "\r\n")
-	fmt.Printf(PingReference02 + "\r\n")
 	fmt.Printf(PingReference03 + "\r\n")
-	fmt.Printf(PingReference04 + "\r\n")
+	fmt.Printf(PingReference05 + "\r\n")
 	fmt.Printf("\r\n\n")
 
 	flag.StringVar(&config.ConfigFilePath, "path", "", "config file path(./config.json)")
