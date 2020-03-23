@@ -30,6 +30,10 @@ func GetCloudflareIatas() (map[string]Icao, error) {
 func GetDataFromUrl(url string) ([]byte, error) {
 	res, err := http.Get(url)
 	if err != nil {
+		// 增加一次失败重试的机会
+		res, err = http.Get(url)
+	}
+	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
