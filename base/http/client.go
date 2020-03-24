@@ -23,10 +23,10 @@ func GetArrayString(getUrl string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return byteToArrayString(body)
+	return ByteToArrayString(body)
 }
 
-func byteToArrayString(body []byte) ([]string, error) {
+func ByteToArrayString(body []byte) ([]string, error) {
 	bodyAllStr := string(body)
 	if bodyAllStr == "" {
 		return nil, errors.New("response body 为空！\r\n")

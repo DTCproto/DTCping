@@ -1,12 +1,12 @@
 package ping
 
 import (
+	"DTCping/base/colo"
 	"encoding/csv"
 	"log"
 	"os"
 	"strconv"
 
-	"DTCping/base/colo"
 	"DTCping/base/iata"
 )
 
