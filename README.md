@@ -35,4 +35,3 @@ _**Usage of DTCping.exe:**_
 | |Save File Path (pingIpv4) (default "pingIpv4")|
 |-iata string|优先读取本地iata对照文件|
 | |iata src file path(default iatas.json)|
-| |(default "iatas.json")|
