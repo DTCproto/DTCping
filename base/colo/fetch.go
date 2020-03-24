@@ -88,11 +88,13 @@ func fetchColoSingle(ip string, scMap *sync.Map, limiter chan bool, wg *sync.Wai
 func getColo(bodyArr []string) (string, error) {
 	for i := range bodyArr {
 		ipSegTail := strings.Split(bodyArr[i], "=")
-		if ipSegTail[0] == "colo" {
-			return ipSegTail[1], nil
-		}
-		if ipSegTail[1] == "colo" {
-			return ipSegTail[0], nil
+		if len(ipSegTail) == 2 {
+			if ipSegTail[0] == "colo" {
+				return ipSegTail[1], nil
+			}
+			if ipSegTail[1] == "colo" {
+				return ipSegTail[0], nil
+			}
 		}
 	}
 	return "", errors.New("获取colo失败")
