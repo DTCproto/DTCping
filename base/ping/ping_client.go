@@ -12,7 +12,7 @@ import (
 
 // 经测试超过IP过多会导致该库测试不准确，轻则飙高，严重导致断网。
 // 取/24的ip数量，256为单次查询单位
-func Pings(addrs []string, number int, coloOpenFlag bool, filePath string) {
+func Pings(addrs []string, number int, coloOpenFlag bool, filePath, iataFilePath string) {
 
 	stMaps, err := SplitPings(addrs, number)
 	if err != nil {
@@ -22,7 +22,7 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath string) {
 	iataMaps := map[string]iata.Icao{}
 	if coloOpenFlag {
 		coloMaps = colo.FetchColo(addrs)
-		iataMaps, err = iata.GetCloudflareIatas()
+		iataMaps, err = iata.LocalFirstGetIatas(iataFilePath)
 		if err != nil {
 			log.Print(err)
 		}

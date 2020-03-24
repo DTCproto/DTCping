@@ -19,6 +19,7 @@ var config struct {
 	SaveFilePath   string
 	PingNumber     int
 	ColoOpenFlag   *bool
+	IataSrcPath    string
 }
 
 const (
@@ -47,6 +48,7 @@ func init() {
 	flag.StringVar(&config.SaveFilePath, "s", "pingIpv4", "Save File Path (pingIpv4)")
 	flag.IntVar(&config.PingNumber, "n", 10, "Ping Number (10)")
 	config.ColoOpenFlag = flag.Bool("colo", false, "Colo Open Flag (default false)")
+	flag.StringVar(&config.IataSrcPath, "iata", "iatas.json", "iata src file path(default iatas.json)")
 }
 
 func main() {
@@ -55,26 +57,27 @@ func main() {
 	number := config.PingNumber
 	filePath := config.SaveFilePath
 	coloOpenFlag := *config.ColoOpenFlag
+	iataSrcPath := config.IataSrcPath
 
 	disTypeFlag := true
 	if disTypeFlag && config.ConfigFilePath != "" {
 		disTypeFlag = false
-		disReadConfigFilePath(filePath, number, coloOpenFlag)
+		disReadConfigFilePath(filePath, iataSrcPath, number, coloOpenFlag)
 	}
 	if disTypeFlag && config.StdIp != "" {
 		disTypeFlag = false
-		disStdAddr(config.StdIp, filePath, number, coloOpenFlag)
+		disStdAddr(config.StdIp, filePath, iataSrcPath, number, coloOpenFlag)
 	}
 	if disTypeFlag && config.StdAddrName != "" {
 		disTypeFlag = false
-		disStdAddr(config.StdAddrName, filePath, number, coloOpenFlag)
+		disStdAddr(config.StdAddrName, filePath, iataSrcPath, number, coloOpenFlag)
 	}
 	if disTypeFlag && config.StdIpSgt != "" {
 		disTypeFlag = false
-		disStdIpSgt(config.StdIpSgt, filePath, number, coloOpenFlag)
+		disStdIpSgt(config.StdIpSgt, filePath, iataSrcPath, number, coloOpenFlag)
 	}
 	if disTypeFlag {
-		disDefault(number, coloOpenFlag)
+		disDefault(number, coloOpenFlag, iataSrcPath)
 	}
 	// 打开文件
 	//cmd := exec.Command("cmd", "/k", "start", filePath+".csv")
@@ -82,7 +85,7 @@ func main() {
 	log.Print("处理完毕!\r\n")
 }
 
-func disReadConfigFilePath(filePath string, number int, coloOpenFlag bool) {
+func disReadConfigFilePath(filePath, iataFilePath string, number int, coloOpenFlag bool) {
 	log.Printf("READ config.ConfigFilePath\r\n")
 	flags := file.PathConfig{}
 	err := flags.ParseConfigFile(config.ConfigFilePath)
@@ -105,12 +108,12 @@ func disReadConfigFilePath(filePath string, number int, coloOpenFlag bool) {
 	for i := 0; i < len(ipSgts); i++ {
 		log.Printf("[%s]开始处理[循环次数为%d]...\r\n", ipSgts[i].NodeId, number)
 		log.Printf("本次ip数量为: [%d]\r\n", len(ipSgts[i].Node))
-		ping.Pings(ipSgts[i].Node, number, coloOpenFlag, filePath+"["+strconv.Itoa(i+1)+"].csv")
+		ping.Pings(ipSgts[i].Node, number, coloOpenFlag, filePath+"["+strconv.Itoa(i+1)+"].csv", iataFilePath)
 		log.Printf("第[%d]批次已处理完毕![%s]\n\n", i+1, ipSgts[i].NodeId)
 	}
 }
 
-func disStdAddr(stdAddr, filePath string, number int, coloOpenFlag bool) {
+func disStdAddr(stdAddr, filePath, iataFilePath string, number int, coloOpenFlag bool) {
 	log.Printf("READ STD.Ip&Addr\r\n")
 	log.Printf("[%s]开始处理[循环次数为%d]...\r\n", stdAddr, number)
 	ips, err := http.LookupIps(stdAddr)
@@ -118,11 +121,11 @@ func disStdAddr(stdAddr, filePath string, number int, coloOpenFlag bool) {
 		log.Fatalln(err)
 	}
 	log.Printf("本次ip数量为: [%d]\r\n", len(ips))
-	ping.Pings(ips, number, coloOpenFlag, filePath+"[ip_addr].csv")
+	ping.Pings(ips, number, coloOpenFlag, filePath+"[ip_addr].csv", iataFilePath)
 	log.Printf("单批次已处理完毕!\r\n\n")
 }
 
-func disStdIpSgt(stdIpSgt, filePath string, number int, coloOpenFlag bool) {
+func disStdIpSgt(stdIpSgt, filePath, iataFilePath string, number int, coloOpenFlag bool) {
 	log.Printf("READ STD.IpSgt\r\n")
 	log.Printf("[%s]开始处理[循环次数为%d]...\r\n", stdIpSgt, number)
 	ips, err := cidr.ParseCidrSingle(stdIpSgt)
@@ -130,11 +133,11 @@ func disStdIpSgt(stdIpSgt, filePath string, number int, coloOpenFlag bool) {
 		log.Fatalln(err)
 	}
 	log.Printf("本次ip数量为: [%d]\r\n", len(ips))
-	ping.Pings(ips, number, coloOpenFlag, filePath+"[ip_sgt].csv")
+	ping.Pings(ips, number, coloOpenFlag, filePath+"[ip_sgt].csv", iataFilePath)
 	log.Printf("单批次已处理完毕!\r\n\n")
 }
 
-func disDefault(number int, coloOpenFlag bool) {
+func disDefault(number int, coloOpenFlag bool, iataFilePath string) {
 	log.Printf("READ Default\r\n")
 	ArrayIps, err := http.GetCloudflareIps()
 	if err != nil {
@@ -151,7 +154,7 @@ func disDefault(number int, coloOpenFlag bool) {
 	for i := 0; i < len(ipSgts); i++ {
 		log.Printf("[%s]开始处理[循环次数为%d]...\r\n", ipSgts[i].NodeId, number)
 		log.Printf("本次ip数量为: [%d]\r\n", len(ipSgts[i].Node))
-		ping.Pings(ipSgts[i].Node, number, coloOpenFlag, "AllCfIpv4PingTo["+strconv.Itoa(i+1)+"].csv")
+		ping.Pings(ipSgts[i].Node, number, coloOpenFlag, "AllCfIpv4PingTo["+strconv.Itoa(i+1)+"].csv", iataFilePath)
 		log.Printf("第[%d]批次已处理完毕![%s]\r\n\n", i+1, ipSgts[i].NodeId)
 	}
 }

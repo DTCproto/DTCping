@@ -20,6 +20,8 @@ type PathConfig struct {
 	ExtractFlag bool `json:"extract_flag"`
 	// 是否查询Colo信息
 	ColoFlag bool `json:"colo_flag"`
+	// 优先读取本地iata对照文件
+	IataSrcPath string `json:"iata_src_path"`
 }
 
 func (c *PathConfig) ParseConfigFile(filePath string) error {

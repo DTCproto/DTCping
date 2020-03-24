@@ -6,6 +6,7 @@
     85
   ],
   "colo_flag": true,
+  "iata_src_path": "iatas.json",
   "extract_flag": true,
   "merge_flag": false,
   "ip_segments": [
