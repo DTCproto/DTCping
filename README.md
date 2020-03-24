@@ -12,6 +12,7 @@ _**配置文件说明：**_
 |merge_flag|是否合并结果到一个CSV|
 |ip_segments|IP段列表|
 |colo_flag|是否查询Colo信息|
+|iata_src_path|优先读取本地iata对照文件|
 
 ----------------------------------------------
 
@@ -32,3 +33,6 @@ _**Usage of DTCping.exe:**_
 | |config file path(./config.json)|
 |-s string|保存文件名设置|
 | |Save File Path (pingIpv4) (default "pingIpv4")|
+|-iata string|优先读取本地iata对照文件|
+| |iata src file path(default iatas.json)|
+| |(default "iatas.json")|
