@@ -10,11 +10,11 @@ import (
 func DataReceiveControl(LenNumber int, resBodyChan chan HttpColoByte, ipColoChan chan IpColo) {
 	for i := 0; i < LenNumber; i++ {
 		httpColoByte := <-resBodyChan
-		go DataReceiveSingle(httpColoByte, ipColoChan)
+		go dataReceiveSingle(httpColoByte, ipColoChan)
 	}
 }
 
-func DataReceiveSingle(httpColoByte HttpColoByte, ipColoChan chan IpColo) {
+func dataReceiveSingle(httpColoByte HttpColoByte, ipColoChan chan IpColo) {
 	ipColo := IpColo{
 		Ip:    httpColoByte.Ip,
 		Error: httpColoByte.Error,
