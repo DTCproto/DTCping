@@ -10,7 +10,7 @@ import (
 
 func DataSenderControl(ips []string, resBodyChan chan HttpColoByte) {
 	// HTTP并发量控制
-	limiter := make(chan bool, 100)
+	limiter := make(chan bool, 120)
 	for i := range ips {
 		limiter <- true
 		go dataSenderSingle(ips[i], resBodyChan, limiter)
@@ -26,7 +26,7 @@ func dataSenderSingle(ip string, resBodyChan chan HttpColoByte, limiter chan boo
 	}
 	// 请求超时设置
 	ctx, cancel := context.WithCancel(context.Background())
-	timer := time.AfterFunc(20*time.Second, func() {
+	timer := time.AfterFunc(5*time.Second, func() {
 		cancel()
 	})
 	//构建URL
@@ -47,8 +47,15 @@ func dataSenderSingle(ip string, resBodyChan chan HttpColoByte, limiter chan boo
 		return
 	}
 	defer resp.Body.Close()
-	// 延时读取Response Body
-	timer.Reset(15 * time.Second)
+	// 延时读取Response Body 定时器未执行时，才有延时的意义
+	// 停止原定时器成功[返回true]，才做延时操作
+	if !timer.Stop() {
+		if timer.C != nil {
+			<-timer.C
+		}
+	} else {
+		timer.Reset(5 * time.Second)
+	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	httpColoByte.respBody = respBody
