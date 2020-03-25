@@ -26,6 +26,7 @@ func GetArrayString(getUrl string) ([]string, error) {
 	return ByteToArrayString(body)
 }
 
+// 按行读取分割数据
 func ByteToArrayString(body []byte) ([]string, error) {
 	bodyAllStr := string(body)
 	if bodyAllStr == "" {

@@ -2,38 +2,35 @@ package colo
 
 import (
 	"errors"
-	"io/ioutil"
-	"net/http"
 	"strings"
 
 	DTCHttp "DTCping/base/http"
 )
 
-func DataReceive(LenNumber int, resBodyChan chan HttpColoByte, ipColoChan chan IpColo) {
+func DataReceiveControl(LenNumber int, resBodyChan chan HttpColoByte, ipColoChan chan IpColo) {
 	for i := 0; i < LenNumber; i++ {
 		httpColoByte := <-resBodyChan
-		ipColo := IpColo{
-			Ip:    httpColoByte.Ip,
-			Error: httpColoByte.Error,
-		}
-		if httpColoByte.Error != nil {
-			ipColoChan <- ipColo
-		} else {
-			coloResStr, err := parsingRespToMaps(httpColoByte.resp)
-			ipColo.Error = err
-			ipColo.Colo = coloResStr
-			ipColoChan <- ipColo
-		}
+		go DataReceiveSingle(httpColoByte, ipColoChan)
 	}
 }
 
-func parsingRespToMaps(resp *http.Response) (string, error) {
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+func DataReceiveSingle(httpColoByte HttpColoByte, ipColoChan chan IpColo) {
+	ipColo := IpColo{
+		Ip:    httpColoByte.Ip,
+		Error: httpColoByte.Error,
 	}
-	resBodyArr, err := DTCHttp.ByteToArrayString(body)
+	if httpColoByte.Error != nil {
+		ipColoChan <- ipColo
+	} else {
+		coloResStr, err := parsingRespToMaps(httpColoByte.respBody)
+		ipColo.Error = err
+		ipColo.Colo = coloResStr
+		ipColoChan <- ipColo
+	}
+}
+
+func parsingRespToMaps(respBody []byte) (string, error) {
+	resBodyArr, err := DTCHttp.ByteToArrayString(respBody)
 	if err != nil {
 		return "", err
 	}

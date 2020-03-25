@@ -1,7 +1,5 @@
 package colo
 
-import "net/http"
-
 //fl=4f197
 //h=104.24.71.22
 //ip=160.120.134.135
@@ -16,9 +14,9 @@ import "net/http"
 //warp=off
 
 type HttpColoByte struct {
-	Ip    string
-	resp  *http.Response
-	Error error
+	Ip       string
+	respBody []byte
+	Error    error
 }
 
 type IpColo struct {
