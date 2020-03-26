@@ -11,7 +11,6 @@ import (
 )
 
 // 经测试超过IP过多会导致该库测试不准确，轻则飙高，严重导致断网。
-// 取/24的ip数量，256为单次查询单位
 func Pings(addrs []string, number int, coloOpenFlag bool, filePath, iataFilePath string) {
 
 	stMaps, err := SplitPings(addrs, number)
@@ -72,7 +71,7 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath, iataFilePath
 
 func SplitPings(addrs []string, number int) ([]map[string]*Statistics, error) {
 	var stMaps []map[string]*Statistics
-	groupNum := len(addrs) / 256
+	groupNum := len(addrs) / 150
 	allGroupNum := groupNum
 	if 256*groupNum < len(addrs) {
 		allGroupNum = allGroupNum + 1
@@ -80,14 +79,14 @@ func SplitPings(addrs []string, number int) ([]map[string]*Statistics, error) {
 	log.Printf("分次查询总次数: [%d]\r\n", allGroupNum)
 	for i := 0; i < groupNum; i++ {
 		log.Printf("[%d]次号查询处理...\r\n", i+1)
-		stMap, err := pingSingle(addrs[256*i:256*(i+1)-1], number)
+		stMap, err := pingSingle(addrs[150*i:150*(i+1)-1], number)
 		if err != nil {
 			return nil, err
 		}
 		stMaps = append(stMaps, stMap)
 	}
-	if 256*groupNum < len(addrs) {
-		stMap, err := pingSingle(addrs[256*groupNum:], number)
+	if 150*groupNum < len(addrs) {
+		stMap, err := pingSingle(addrs[150*groupNum:], number)
 		log.Printf("末次号查询处理...\r\n")
 		if err != nil {
 			return nil, err
