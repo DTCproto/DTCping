@@ -1,6 +1,6 @@
 {
   "number": 10,
-  "each_single_num": 500,
+  "each_single_num": 512,
   "csv_file_name": "pingIpv4",
   "random_values": [
     22,
