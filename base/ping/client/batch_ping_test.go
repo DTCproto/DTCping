@@ -1,6 +1,7 @@
-package ping
+package client
 
 import (
+	ping "DTCping/base/ping/base"
 	"testing"
 )
 
@@ -25,7 +26,7 @@ func TestNewBatchPinger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := NewBatchPinger(tt.args.addrs, tt.args.privileged)
+			_, err := ping.NewBatchPing(tt.args.addrs, tt.args.privileged)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewBatchPinger() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -105,13 +106,13 @@ func TestNewBatchPinger_multiAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			batchPinger, err := NewBatchPinger(tt.args.addrs, tt.args.privileged)
-			if (err != nil) != tt.wantErr {
+			batchPacketCore, err := ping.NewBatchPing(tt.args.addrs, tt.args.privileged)
+			if err != nil {
 				t.Errorf("NewBatchPinger() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			err = batchPinger.Run()
-			if (err != nil) != tt.wantErr {
+			err = batchPacketCore.Run()
+			if err != nil {
 				t.Errorf("multi ping  error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -140,13 +141,13 @@ func TestNewBatchPinger_ipv6(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bp, err := NewBatchPinger(tt.args.addrs, tt.args.privileged)
-			if (err != nil) != tt.wantErr {
+			bp, err := ping.NewBatchPing(tt.args.addrs, tt.args.privileged)
+			if err != nil {
 				t.Errorf("NewBatchPinger() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			err = bp.Run()
-			if (err != nil) != tt.wantErr {
+			if err != nil {
 				t.Errorf("ping ipv6 error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

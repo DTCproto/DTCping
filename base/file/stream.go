@@ -22,6 +22,8 @@ type PathConfig struct {
 	ColoFlag bool `json:"colo_flag"`
 	// 优先读取本地iata对照文件
 	IataSrcPath string `json:"iata_src_path"`
+	// 单批次ping的ip数量
+	EachSingleNum int `json:"each_single_num"`
 }
 
 func (c *PathConfig) ParseConfigFile(filePath string) error {

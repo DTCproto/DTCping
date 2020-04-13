@@ -1,19 +1,20 @@
-package ping
+package client
 
 import (
 	"DTCping/base/colo"
+	"DTCping/base/iata"
 	"encoding/csv"
 	"log"
 	"os"
 	"strconv"
 
-	"DTCping/base/iata"
+	ping "DTCping/base/ping/base"
 )
 
 // 经测试超过IP过多会导致该库测试不准确，轻则飙高，严重导致断网。
-func Pings(addrs []string, number int, coloOpenFlag bool, filePath, iataFilePath string) {
+func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath, iataFilePath string) {
 
-	stMaps, err := SplitPings(addrs, number)
+	stMaps, err := SplitPings(addrs, number, singleNumber)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -69,9 +70,9 @@ func Pings(addrs []string, number int, coloOpenFlag bool, filePath, iataFilePath
 	writeFd.Flush()
 }
 
-func SplitPings(addrs []string, number int) ([]map[string]*Statistics, error) {
-	var stMaps []map[string]*Statistics
-	groupNum := len(addrs) / 150
+func SplitPings(addrs []string, number, singleNumber int) ([]map[string]*ping.Statistics, error) {
+	var stMaps []map[string]*ping.Statistics
+	groupNum := len(addrs) / singleNumber
 	allGroupNum := groupNum
 	if 256*groupNum < len(addrs) {
 		allGroupNum = allGroupNum + 1
@@ -79,14 +80,14 @@ func SplitPings(addrs []string, number int) ([]map[string]*Statistics, error) {
 	log.Printf("分次查询总次数: [%d]\r\n", allGroupNum)
 	for i := 0; i < groupNum; i++ {
 		log.Printf("[%d]次号查询处理...\r\n", i+1)
-		stMap, err := pingSingle(addrs[150*i:150*(i+1)-1], number)
+		stMap, err := pingSingle(addrs[singleNumber*i:singleNumber*(i+1)-1], number)
 		if err != nil {
 			return nil, err
 		}
 		stMaps = append(stMaps, stMap)
 	}
 	if 150*groupNum < len(addrs) {
-		stMap, err := pingSingle(addrs[150*groupNum:], number)
+		stMap, err := pingSingle(addrs[singleNumber*groupNum:], number)
 		log.Printf("末次号查询处理...\r\n")
 		if err != nil {
 			return nil, err
@@ -96,24 +97,23 @@ func SplitPings(addrs []string, number int) ([]map[string]*Statistics, error) {
 	return stMaps, nil
 }
 
-func pingSingle(standardAddrs []string, number int) (map[string]*Statistics, error) {
-	bp, err := NewBatchPinger(standardAddrs, true) // true will need to be root, false may be permission denied
+func pingSingle(standardAddrs []string, number int) (map[string]*ping.Statistics, error) {
+	bp, err := ping.NewBatchPing(standardAddrs, true) // true will need to be root, false may be permission denied
 	if err != nil {
 		log.Fatalf("new batch ping err %v\r\n", err)
 	}
-	bp.SetDebug(false) // debug == true will fmt debug log
-	bp.SetSource("")   // if hava multi source ip, can use one isp
-	bp.SetCount(number)
+	bp.Debug = false  // debug == true will fmt debug log
+	bp.Count = number // if hava multi source ip, can use one isp
 
-	var stMapResult map[string]*Statistics
+	var stMapResult map[string]*ping.Statistics
 
-	bp.OnFinish = func(stMap map[string]*Statistics) {
+	bp.OnFinish = func(stMap map[string]*ping.Statistics) {
 		stMapResult = stMap
 	}
 	err = bp.Run()
 	if err != nil {
 		return nil, err
 	}
-	bp.OnFinish(bp.Statistics())
+	bp.OnFinish(ping.BatchStatistics(bp))
 	return stMapResult, nil
 }
