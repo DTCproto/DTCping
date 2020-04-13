@@ -50,7 +50,7 @@ func init() {
 	flag.IntVar(&config.PingNumber, "n", 10, "Ping Number (10)")
 	config.ColoOpenFlag = flag.Bool("colo", false, "Colo Open Flag (default false)")
 	flag.StringVar(&config.IataSrcPath, "iata", "iatas.json", "iata src file path(default iatas.json)")
-	flag.IntVar(&config.SingleNumber, "-esn", 256, "Each Single Number (256)")
+	flag.IntVar(&config.SingleNumber, "esn", 256, "Each Single Number (256)")
 }
 
 func main() {
