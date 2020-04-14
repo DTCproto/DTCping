@@ -3,6 +3,7 @@ package client
 import (
 	"DTCping/base/colo"
 	"DTCping/base/iata"
+	"DTCping/base/sort"
 	"encoding/csv"
 	"log"
 	"os"
@@ -43,7 +44,24 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 		header,
 	}
 
-	for i := range stMaps {
+	statisticsSort := sort.ProcessStatistics(stMaps)
+
+	for i := range statisticsSort {
+		context := []string{
+			statisticsSort[i].Ip,
+			strconv.FormatFloat(statisticsSort[i].Data.PacketLoss, 'f', 2, 64) + "%",
+			strconv.Itoa(statisticsSort[i].Data.PacketsSent),
+			strconv.Itoa(statisticsSort[i].Data.PacketsRecv),
+			statisticsSort[i].Data.AvgRtt.String(),
+			statisticsSort[i].Data.MinRtt.String(),
+			statisticsSort[i].Data.MaxRtt.String(),
+			coloMaps[statisticsSort[i].Ip].Colo,
+			iataMaps[coloMaps[statisticsSort[i].Ip].Colo].Country,
+			iataMaps[coloMaps[statisticsSort[i].Ip].Colo].City,
+		}
+		data = append(data, context)
+	}
+	/*for i := range stMaps {
 		for ip, st := range stMaps[i] {
 			//log.Printf("\n--- %s ping statistics ---\n", st.Addr)
 			//log.Printf("ip %s, %d packets transmitted, %d packets received, %v%% packet loss\n", ip,
@@ -65,7 +83,7 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 			}
 			data = append(data, context)
 		}
-	}
+	}*/
 	_ = writeFd.WriteAll(data)
 	writeFd.Flush()
 }
