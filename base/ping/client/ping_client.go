@@ -44,7 +44,7 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 		header,
 	}
 
-	statisticsSort := sort.ProcessStatistics(stMaps)
+	statisticsSort := sort.ProcessStatisticsSlice(stMaps)
 
 	for i := range statisticsSort {
 		context := []string{

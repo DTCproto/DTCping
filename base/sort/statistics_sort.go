@@ -5,11 +5,6 @@ import (
 	"sort"
 )
 
-type Base struct {
-	Ip   string
-	Data *ping.Statistics
-}
-
 type StatisticsSort []Base
 
 func (s StatisticsSort) Len() int {
@@ -20,7 +15,10 @@ func (s StatisticsSort) Less(i, j int) bool {
 	if s[i].Data.PacketLoss != s[j].Data.PacketLoss {
 		return s[i].Data.PacketLoss < s[j].Data.PacketLoss
 	} else {
-		return s[i].Data.AvgRtt.Nanoseconds() <= s[j].Data.AvgRtt.Nanoseconds()
+		// 平均延迟
+		// return s[i].Data.AvgRtt.Nanoseconds() <= s[j].Data.AvgRtt.Nanoseconds()
+		// 最大延迟
+		return s[i].Data.MaxRtt.Nanoseconds() <= s[j].Data.MaxRtt.Nanoseconds()
 	}
 }
 
@@ -28,6 +26,8 @@ func (s StatisticsSort) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
+// 方法1:
+// 默认Sort [相同元素保持原排序Stable]
 func ProcessStatistics(stMaps []map[string]*ping.Statistics) []Base {
 	var statisticsSort []Base
 	for i := range stMaps {
