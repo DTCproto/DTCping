@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-func DataSenderControl(ips []string, resBodyChan chan HttpColoByte) {
+func DataSenderControl(resBodyChan chan *HttpColoByte, limiterNum int, ips []string) {
 	// HTTP并发量控制
-	limiter := make(chan bool, 120)
+	limiter := make(chan bool, limiterNum)
 	for i := range ips {
 		limiter <- true
 		go dataSenderSingle(ips[i], resBodyChan, limiter)
 	}
 }
 
-func dataSenderSingle(ip string, resBodyChan chan HttpColoByte, limiter chan bool) {
+func dataSenderSingle(ip string, resBodyChan chan *HttpColoByte, limiter chan bool) {
 	// Func执行完毕需释放占用信号
 	defer func() { <-limiter }()
-	// 构建返回数据包
-	httpColoByte := HttpColoByte{
+	// 构建返回数据包 [指针初始化 new() ]
+	httpColoByte := &HttpColoByte{
 		Ip: ip,
 	}
 	// 请求超时设置

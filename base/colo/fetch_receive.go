@@ -1,32 +1,34 @@
 package colo
 
 import (
+	DTCHttp "DTCping/base/http"
 	"errors"
 	"strings"
-
-	DTCHttp "DTCping/base/http"
 )
 
-func DataReceiveControl(LenNumber int, resBodyChan chan HttpColoByte, ipColoChan chan IpColo) {
-	for i := 0; i < LenNumber; i++ {
-		httpColoByte := <-resBodyChan
-		go dataReceiveSingle(httpColoByte, ipColoChan)
+func DataReceiveControl(done chan bool, resBodyChan chan *HttpColoByte, ipColoChan chan *IpColo) {
+	for {
+		select {
+		case <-done:
+			return
+		case httpColoByte := <-resBodyChan:
+			go dataReceiveSingle(httpColoByte, ipColoChan)
+		}
 	}
 }
 
-func dataReceiveSingle(httpColoByte HttpColoByte, ipColoChan chan IpColo) {
-	ipColo := IpColo{
+func dataReceiveSingle(httpColoByte *HttpColoByte, ipColoChan chan *IpColo) {
+	// [指针初始化 new() ]
+	ipColo := &IpColo{
 		Ip:    httpColoByte.Ip,
 		Error: httpColoByte.Error,
 	}
-	if httpColoByte.Error != nil {
-		ipColoChan <- ipColo
-	} else {
+	if httpColoByte.Error == nil {
 		coloResStr, err := parsingRespToMaps(httpColoByte.respBody)
 		ipColo.Error = err
 		ipColo.Colo = coloResStr
-		ipColoChan <- ipColo
 	}
+	ipColoChan <- ipColo
 }
 
 func parsingRespToMaps(respBody []byte) (string, error) {

@@ -21,7 +21,7 @@ type BatchPacketCore struct {
 	// 超时指定基准退出之前的超时，无论已接收多少个数据包
 	timeout time.Duration
 
-	//count是每个用户的基数
+	//count是发送的基数
 	Count int
 
 	//sendCount是已发送的数字

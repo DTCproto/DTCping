@@ -19,7 +19,7 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 	if err != nil {
 		log.Fatalln(err)
 	}
-	coloMaps := map[string]colo.IpColo{}
+	coloMaps := map[string]*colo.IpColo{}
 	iataMaps := map[string]iata.Icao{}
 	if coloOpenFlag {
 		coloMaps = colo.FetchColo(addrs)
@@ -47,6 +47,14 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 	statisticsSort := sort.ProcessStatisticsSlice(stMaps)
 
 	for i := range statisticsSort {
+		coloData := func() string {
+			ipColo := coloMaps[statisticsSort[i].Ip]
+			coloData := ""
+			if ipColo != nil {
+				coloData = ipColo.Colo
+			}
+			return coloData
+		}()
 		context := []string{
 			statisticsSort[i].Ip,
 			strconv.FormatFloat(statisticsSort[i].Data.PacketLoss, 'f', 2, 64) + "%",
@@ -55,35 +63,12 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 			statisticsSort[i].Data.AvgRtt.String(),
 			statisticsSort[i].Data.MinRtt.String(),
 			statisticsSort[i].Data.MaxRtt.String(),
-			coloMaps[statisticsSort[i].Ip].Colo,
-			iataMaps[coloMaps[statisticsSort[i].Ip].Colo].Country,
-			iataMaps[coloMaps[statisticsSort[i].Ip].Colo].City,
+			coloData,
+			iataMaps[coloData].Country,
+			iataMaps[coloData].City,
 		}
 		data = append(data, context)
 	}
-	/*for i := range stMaps {
-		for ip, st := range stMaps[i] {
-			//log.Printf("\n--- %s ping statistics ---\n", st.Addr)
-			//log.Printf("ip %s, %d packets transmitted, %d packets received, %v%% packet loss\n", ip,
-			//	st.PacketsSent, st.PacketsRecv, st.PacketLoss)
-			//log.Printf("round-trip min/avg/max/stddev = %v/%v/%v/%v\n",
-			//	st.MinRtt, st.AvgRtt, st.MaxRtt, st.StdDevRtt)
-			//log.Printf("rtts is %v \n", st.Rtts)
-			context := []string{
-				ip,
-				strconv.FormatFloat(st.PacketLoss, 'f', 2, 64) + "%",
-				strconv.Itoa(st.PacketsSent),
-				strconv.Itoa(st.PacketsRecv),
-				st.AvgRtt.String(),
-				st.MinRtt.String(),
-				st.MaxRtt.String(),
-				coloMaps[ip].Colo,
-				iataMaps[coloMaps[ip].Colo].Country,
-				iataMaps[coloMaps[ip].Colo].City,
-			}
-			data = append(data, context)
-		}
-	}*/
 	_ = writeFd.WriteAll(data)
 	writeFd.Flush()
 }

@@ -24,3 +24,8 @@ type IpColo struct {
 	Colo  string
 	Error error
 }
+
+const (
+	defaultLimiterNumber = 256
+	defaultBodyCache     = 1024
+)
