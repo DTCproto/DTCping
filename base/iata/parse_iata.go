@@ -8,7 +8,10 @@ import (
 	"strings"
 )
 
-const cfIataUrl = "https://raw.githubusercontent.com/mwgg/Airports/master/airports.json"
+const (
+	defaultIataUrl = "https://raw.githubusercontent.com/DTCproto/DTCping/master/config/iatas.json"
+	cfIataUrl      = "https://raw.githubusercontent.com/mwgg/Airports/master/airports.json"
+)
 
 func LocalFirstGetIatas(filePath string) (map[string]Icao, error) {
 	fileData, err := ioutil.ReadFile(filePath)
@@ -21,7 +24,7 @@ func LocalFirstGetIatas(filePath string) (map[string]Icao, error) {
 }
 
 func GetCloudflareIatas() (map[string]Icao, error) {
-	resBody, err := GetDataFromUrl(cfIataUrl)
+	resBody, err := GetDataFromUrl(defaultIataUrl)
 	if err != nil {
 		return nil, err
 	}
