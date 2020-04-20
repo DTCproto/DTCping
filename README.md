@@ -14,6 +14,7 @@ _**配置文件说明：**_
 |colo_flag|是否查询Colo信息|
 |iata_src_path|优先读取本地iata对照文件|
 |each_single_num|单批次ping的ip数量|
+|colo_limiter_num|COLO并发数|
 
 ----------------------------------------------
 
@@ -38,3 +39,5 @@ _**Usage of DTCping.exe:**_
 | |iata src file path(default iatas.json)|
 |-esn int|单批次ping的ip数量(例如：256个)|
 | | Each Single Number (256) (default 256)|
+|-cln int|COLO并发数(例如：256个)|
+| | COLO Limiter Number (256) (default 256)|

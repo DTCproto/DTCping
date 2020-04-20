@@ -13,7 +13,7 @@ import (
 )
 
 // 经测试超过IP过多会导致该库测试不准确，轻则飙高，严重导致断网。
-func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath, iataFilePath string) {
+func Pings(addrs []string, number, singleNumber, limiterNumber int, coloOpenFlag bool, filePath, iataFilePath string) {
 
 	stMaps, err := SplitPings(addrs, number, singleNumber)
 	if err != nil {
@@ -22,7 +22,7 @@ func Pings(addrs []string, number, singleNumber int, coloOpenFlag bool, filePath
 	coloMaps := map[string]*colo.IpColo{}
 	iataMaps := map[string]iata.Icao{}
 	if coloOpenFlag {
-		coloMaps = colo.FetchColo(addrs)
+		coloMaps = colo.FetchColo(limiterNumber, addrs)
 		iataMaps, err = iata.LocalFirstGetIatas(iataFilePath)
 		if err != nil {
 			log.Print(err)

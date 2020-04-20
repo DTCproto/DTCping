@@ -26,6 +26,5 @@ type IpColo struct {
 }
 
 const (
-	defaultLimiterNumber = 256
-	defaultBodyCache     = 1024
+	defaultBodyCache = 1024
 )

@@ -7,12 +7,12 @@ import (
 	"sync"
 )
 
-func FetchColo(ips []string) map[string]*IpColo {
-	ipColoMap, ipErrorArr, err := FetchColoSingle(defaultLimiterNumber, ips)
+func FetchColo(limiterNumber int, ips []string) map[string]*IpColo {
+	ipColoMap, ipErrorArr, err := FetchColoSingle(limiterNumber, ips)
 	if err != nil {
 		// 存在失败数据重试一次
 		log.Printf("COLO首次请求存在失败情况!总量为: [%d]...重试中...\r\n", len(ipErrorArr))
-		ipColoMapRetry, _, _ := FetchColoSingle(defaultLimiterNumber, ipErrorArr)
+		ipColoMapRetry, _, _ := FetchColoSingle(limiterNumber, ipErrorArr)
 		for key, value := range ipColoMapRetry {
 			ipColoMap[key] = value
 		}
