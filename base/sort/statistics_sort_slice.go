@@ -11,7 +11,7 @@ func ProcessStatisticsSlice(stMaps []map[string]*ping.Statistics) []Base {
 	var sSortSlice []Base
 	for i := range stMaps {
 		for ip, st := range stMaps[i] {
-			sSortSlice = append(sSortSlice, Base{
+			sSortSlice = appendBase(sSortSlice, Base{
 				Ip:   ip,
 				Data: st,
 			})
@@ -28,4 +28,19 @@ func ProcessStatisticsSlice(stMaps []map[string]*ping.Statistics) []Base {
 		}
 	})
 	return sSortSlice
+}
+
+// 默认append函数在for循环里容易out of memory
+func appendBase(slice []Base, data ...Base) []Base {
+	m := len(slice)
+	n := m + len(slice)
+	if n > cap(slice) {
+		slice = append(slice, data...)
+		newSlice := make([]Base, len(slice))
+		copy(newSlice, slice)
+		return newSlice
+	} else {
+		slice = append(slice, data...)
+		return slice
+	}
 }

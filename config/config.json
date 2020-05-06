@@ -4,8 +4,9 @@
   "colo_limiter_num": 512,
   "csv_file_name": "pingIpv4",
   "random_values": [
-    22,
-    85
+    3,
+    85,
+    133
   ],
   "colo_flag": true,
   "iata_src_path": "iatas.json",
