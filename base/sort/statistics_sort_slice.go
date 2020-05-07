@@ -7,27 +7,18 @@ import (
 
 // 方法2:
 // 默认Slice [相同元素保持原排序SliceStable]
-func ProcessStatisticsSlice(stMaps []map[string]*ping.Statistics) []Base {
-	var sSortSlice []Base
-	for i := range stMaps {
-		for ip, st := range stMaps[i] {
-			sSortSlice = append(sSortSlice, Base{
-				Ip:   ip,
-				Data: st,
-			})
-		}
-	}
-	sort.Slice(sSortSlice, func(i, j int) bool {
-		if sSortSlice[i].Data.PacketLoss != sSortSlice[j].Data.PacketLoss {
-			return sSortSlice[i].Data.PacketLoss < sSortSlice[j].Data.PacketLoss
+func ProcessStatisticsSlice(stMaps []*ping.Statistics) []*ping.Statistics {
+	sort.Slice(stMaps, func(i, j int) bool {
+		if stMaps[i].PacketLoss != stMaps[j].PacketLoss {
+			return stMaps[i].PacketLoss < stMaps[j].PacketLoss
 		} else {
 			// 平均延迟
 			// return sSortSlice[i].Data.AvgRtt.Nanoseconds() <= sSortSlice[j].Data.AvgRtt.Nanoseconds()
 			// 最大延迟
-			return sSortSlice[i].Data.MaxRtt.Nanoseconds() <= sSortSlice[j].Data.MaxRtt.Nanoseconds()
+			return stMaps[i].MaxRtt.Nanoseconds() <= stMaps[j].MaxRtt.Nanoseconds()
 		}
 	})
-	return sSortSlice
+	return stMaps
 }
 
 // 默认append函数在for循环里容易out of memory [等待后续优化]

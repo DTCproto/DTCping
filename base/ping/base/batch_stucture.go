@@ -43,7 +43,7 @@ type BatchPacketCore struct {
 	addrs []string
 
 	// 当PacketCore退出时可以调用OnFinish
-	OnFinish func(map[string]*Statistics)
+	OnFinish func([]*Statistics)
 
 	Debug bool
 

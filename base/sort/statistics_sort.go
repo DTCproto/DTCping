@@ -28,15 +28,14 @@ func (s StatisticsSort) Swap(i, j int) {
 
 // 方法1:
 // 默认Sort [相同元素保持原排序Stable]
-func ProcessStatistics(stMaps []map[string]*ping.Statistics) []Base {
-	var statisticsSort []Base
-	for i := range stMaps {
-		for ip, st := range stMaps[i] {
-			statisticsSort = append(statisticsSort, Base{
-				Ip:   ip,
-				Data: st,
-			})
-		}
+func ProcessStatistics(stMaps map[string]*ping.Statistics) []Base {
+	// 预估长度
+	statisticsSort := make([]Base, 0, len(stMaps))
+	for ip, st := range stMaps {
+		statisticsSort = append(statisticsSort, Base{
+			Ip:   ip,
+			Data: st,
+		})
 	}
 	sort.Sort(StatisticsSort(statisticsSort))
 	return statisticsSort

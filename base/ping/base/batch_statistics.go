@@ -1,12 +1,14 @@
 package base
 
 // Statistics is all addr data Statistic
-func BatchStatistics(bp *BatchPacketCore) map[string]*Statistics {
-	stMap := map[string]*Statistics{}
-	for ip, packetCore := range bp.mapIpPacketCore {
-		addr := bp.mapIpAddr[ip]
-		stMap[addr] = packetCore.Statistics()
+func BatchStatistics(bp *BatchPacketCore) []*Statistics {
+	// 预估长度
+	stMap := make([]*Statistics, 0, len(bp.mapIpPacketCore))
+	// log.Printf("START %d %d %d \n", len(stMap), len(bp.mapIpPacketCore), cap(stMap))
+	for ip := range bp.mapIpPacketCore {
+		stMap = append(stMap, bp.mapIpPacketCore[ip].Statistics())
 	}
+	// log.Printf("END %d %d %d \n", len(stMap), len(bp.mapIpPacketCore), cap(stMap))
 	return stMap
 }
 

@@ -48,7 +48,7 @@ func Pings(addrs []string, number, singleNumber, limiterNumber int, coloOpenFlag
 
 	for i := range statisticsSort {
 		coloData := func() string {
-			ipColo := coloMaps[statisticsSort[i].Ip]
+			ipColo := coloMaps[statisticsSort[i].IPAddr.String()]
 			coloData := ""
 			if ipColo != nil {
 				coloData = ipColo.Colo
@@ -56,13 +56,13 @@ func Pings(addrs []string, number, singleNumber, limiterNumber int, coloOpenFlag
 			return coloData
 		}()
 		context := []string{
-			statisticsSort[i].Ip,
-			strconv.FormatFloat(statisticsSort[i].Data.PacketLoss, 'f', 2, 64) + "%",
-			strconv.Itoa(statisticsSort[i].Data.PacketsSent),
-			strconv.Itoa(statisticsSort[i].Data.PacketsRecv),
-			statisticsSort[i].Data.AvgRtt.String(),
-			statisticsSort[i].Data.MinRtt.String(),
-			statisticsSort[i].Data.MaxRtt.String(),
+			statisticsSort[i].IPAddr.String(),
+			strconv.FormatFloat(statisticsSort[i].PacketLoss, 'f', 2, 64) + "%",
+			strconv.Itoa(statisticsSort[i].PacketsSent),
+			strconv.Itoa(statisticsSort[i].PacketsRecv),
+			statisticsSort[i].AvgRtt.String(),
+			statisticsSort[i].MinRtt.String(),
+			statisticsSort[i].MaxRtt.String(),
 			coloData,
 			iataMaps[coloData].Country,
 			iataMaps[coloData].City,
@@ -73,50 +73,49 @@ func Pings(addrs []string, number, singleNumber, limiterNumber int, coloOpenFlag
 	writeFd.Flush()
 }
 
-func SplitPings(addrs []string, number, singleNumber int) ([]map[string]*ping.Statistics, error) {
-	var stMaps []map[string]*ping.Statistics
+func SplitPings(addrs []string, number, singleNumber int) ([]*ping.Statistics, error) {
+	// 预估长度 || make([]int, 0, 10) & length 0 and capacity 10 & use to append
+	stMaps := make([]*ping.Statistics, 0, len(addrs))
 	groupNum := len(addrs) / singleNumber
 	allGroupNum := groupNum
-	if 256*groupNum < len(addrs) {
+	if singleNumber*groupNum < len(addrs) {
 		allGroupNum = allGroupNum + 1
 	}
 	log.Printf("分次查询总次数: [%d]\r\n", allGroupNum)
+	var err error
 	for i := 0; i < groupNum; i++ {
 		log.Printf("[%d]次号查询处理...\r\n", i+1)
-		stMap, err := pingSingle(addrs[singleNumber*i:singleNumber*(i+1)-1], number)
+		stMaps, err = pingSingle(stMaps, addrs[singleNumber*i:singleNumber*(i+1)-1], number)
 		if err != nil {
 			return nil, err
 		}
-		stMaps = append(stMaps, stMap)
 	}
-	if 150*groupNum < len(addrs) {
-		stMap, err := pingSingle(addrs[singleNumber*groupNum:], number)
+	if singleNumber*groupNum < len(addrs) {
+		stMaps, err = pingSingle(stMaps, addrs[singleNumber*groupNum:], number)
 		log.Printf("末次号查询处理...\r\n")
 		if err != nil {
 			return nil, err
 		}
-		stMaps = append(stMaps, stMap)
 	}
+	log.Printf("查询完毕!\r\n")
 	return stMaps, nil
 }
 
-func pingSingle(standardAddrs []string, number int) (map[string]*ping.Statistics, error) {
+func pingSingle(stMaps []*ping.Statistics, standardAddrs []string, number int) ([]*ping.Statistics, error) {
 	bp, err := ping.NewBatchPing(standardAddrs, true) // true will need to be root, false may be permission denied
 	if err != nil {
 		log.Fatalf("new batch ping err %v\r\n", err)
 	}
 	bp.Debug = false  // debug == true will fmt debug log
 	bp.Count = number // if hava multi source ip, can use one isp
-
-	var stMapResult map[string]*ping.Statistics
-
-	bp.OnFinish = func(stMap map[string]*ping.Statistics) {
-		stMapResult = stMap
+	bp.OnFinish = func(stMapTemp []*ping.Statistics) {
+		log.Printf("%d %d %d \n", len(stMaps), len(stMapTemp), cap(stMaps))
+		stMaps = append(stMaps, stMapTemp...)
 	}
 	err = bp.Run()
 	if err != nil {
 		return nil, err
 	}
 	bp.OnFinish(ping.BatchStatistics(bp))
-	return stMapResult, nil
+	return stMaps, nil
 }
