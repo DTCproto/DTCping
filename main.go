@@ -25,7 +25,7 @@ var config struct {
 }
 
 const (
-	DTCPingVersion  = "v2.3.6.1-20200506"
+	DTCPingVersion  = "v2.3.7-20200507"
 	PingReference01 = "https://github.com/caucy/batch_ping"
 	PingReference02 = "https://github.com/sparrc/go-ping"
 	PingReference03 = "https://www.cloudflare.com/ips-v4"

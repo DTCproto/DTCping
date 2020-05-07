@@ -109,7 +109,7 @@ func pingSingle(stMaps []*ping.Statistics, standardAddrs []string, number int) (
 	bp.Debug = false  // debug == true will fmt debug log
 	bp.Count = number // if hava multi source ip, can use one isp
 	bp.OnFinish = func(stMapTemp []*ping.Statistics) {
-		log.Printf("%d %d %d \n", len(stMaps), len(stMapTemp), cap(stMaps))
+		// log.Printf("%d %d %d \n", len(stMaps), len(stMapTemp), cap(stMaps))
 		stMaps = append(stMaps, stMapTemp...)
 	}
 	err = bp.Run()
